@@ -3,15 +3,6 @@ name: Update Registry from Server
 on:
   schedule:
     - cron: '29 * * * *'
-  workflow_dispatch:
-    inputs:
-      registry_url:
-        description: 'Override registry URL'
-        required: false
-        default: 'https://dl.geotessera.org/v1/registry.tar.bz2'
-
-env:
-  REGISTRY_URL: ${{ github.event.inputs.registry_url }}
 
 jobs:
   update-registry:
@@ -35,10 +26,8 @@ jobs:
     - name: Check for registry updates
       id: check_updates
       run: |
-        echo "Checking for registry updates from: $REGISTRY_URL"
-        
-        if ! wget -q "$REGISTRY_URL" -O /tmp/registry.tar.bz2; then
-          echo "Failed to download registry from $REGISTRY_URL"
+        if ! wget -q "https://dl.geotessera.org/v1/registry.tar.bz2" -O /tmp/registry.tar.bz2; then
+          echo "Failed to download registry"
           exit 0
         fi
         
