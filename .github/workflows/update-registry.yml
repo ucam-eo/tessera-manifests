@@ -37,18 +37,12 @@ jobs:
       run: |
         echo "Checking for registry updates from: $REGISTRY_URL"
         
-        # Create temp directory for downloads
-        mkdir -p temp_registry
-        
-        # Download registry archive
-        if ! wget -q "$REGISTRY_URL" -O temp_registry/registry.tar.bz2; then
+        if ! wget -q "$REGISTRY_URL" -O /tmp/registry.tar.bz2; then
           echo "Failed to download registry from $REGISTRY_URL"
           exit 0
         fi
         
-        # Extract the archive
-        cd temp_registry
-        if ! tar -xf registry.tar.bz2; then
+        if ! tar -xf /tmp/registry.tar.bz2; then
           echo "Failed to extract registry archive"
           exit 0
         fi
