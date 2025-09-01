@@ -2,7 +2,7 @@ name: Update Registry from Server
 
 on:
   schedule:
-    - cron: '0 6 * * *'
+    - cron: '29 * * * *'
   workflow_dispatch:
     inputs:
       registry_url:
