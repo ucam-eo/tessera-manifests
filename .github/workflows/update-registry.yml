@@ -1,0 +1,64 @@
+name: Update Registry from Server
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      registry_url:
+        description: 'Override registry URL'
+        required: false
+        default: 'https://dl.geotessera.org/v1/registry.tar.bz2'
+
+env:
+  REGISTRY_URL: ${{ github.event.inputs.registry_url }}
+
+jobs:
+  update-registry:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      
+    - name: Configure Git
+      run: |
+        git config --global user.name "GitHub Actions Bot"
+        git config --global user.email "actions@github.com"
+        
+    - name: Check for registry updates
+      id: check_updates
+      run: |
+        echo "Checking for registry updates from: $REGISTRY_URL"
+        
+        # Create temp directory for downloads
+        mkdir -p temp_registry
+        
+        # Download registry archive
+        if ! wget -q "$REGISTRY_URL" -O temp_registry/registry.tar.bz2; then
+          echo "Failed to download registry from $REGISTRY_URL"
+          exit 0
+        fi
+        
+        # Extract the archive
+        cd temp_registry
+        if ! tar -xf registry.tar.bz2; then
+          echo "Failed to extract registry archive"
+          exit 0
+        fi
+        
+    - name: Create commit with geotessera-registry
+      run: |
+        uvx --from git+https://github.com/ucam-eo/geotessera@registry-commit geotessera-registry commit
+
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
