@@ -1,6 +1,7 @@
 name: Update Registry from Server
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '29 * * * *'
 
